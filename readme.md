@@ -1,0 +1,3 @@
+# E-Commerce Application
+
+Still under process using modern technologies: node.js, express, mongoDB, mongoose etc...
