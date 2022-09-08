@@ -1,15 +1,19 @@
 const User = require("../models/userModel");
-const catchAsync = require("../utilities/catchAsyncErr");
+const catchAsyncErr = require("../utilities/catchAsyncErr");
 const jwt = require("jsonwebtoken");
+const AppError = require("../utilities/AppError");
+const { promisify } = require("util");
 
 const signToken = function (id) {
-  return jwt.sign({ id }, process.env.JWT_PRIVATE_KEY);
+  return jwt.sign({ id }, process.env.JWT_PRIVATE_KEY, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
 };
 
 const sendJWTrespons = (user, statusCode, res, err) => {
   const token = signToken(user._id);
   user.password = undefined;
-
+  // console.log(token);
   res.status(statusCode).json({
     status: "successfully",
     token,
@@ -19,7 +23,7 @@ const sendJWTrespons = (user, statusCode, res, err) => {
   });
 };
 
-exports.register = catchAsync(async (req, res, next) => {
+exports.register = catchAsyncErr(async (req, res, next) => {
   const newUser = User.create({
     name: req.body.name,
     email: req.body.email,
@@ -36,23 +40,38 @@ exports.login = catchAsyncErr(async (req, res, next) => {
   const { email, password } = req.body;
   //Check if email and password exist
   if (!email || !password) {
-    return next("Please provide your email and password", 400);
+    return next(new AppError("Please provide your email and password", 400));
   }
   //Check if user exist and password is correct
 
-  //   const user = await User.findOne({ email });
-  //   if (!user) {
-  //     return next("User not found", 404);
-  //   }
-  //INSTANCE METHOD APPLIED INSTADE.
+  //INSTANCE METHOD APPLIED (find this in the userModel).
   const user = await User.findOne({ email }).select("+password");
-  if (
-    !passwordMatch ||
-    !(await user.checkCorrectPassword(password, user.password))
-  ) {
-    return next("Incorrect email or password", 4011);
+  if (!user || !(await user.checkCorrectPassword(password, user.password))) {
+    return next(new AppError("Incorrect email or password", 401));
   }
 
   //If all is correct, then send token
-  sendJWTrespons(user, 200, res);
+  sendJWTrespons(User, 200, res);
 });
+
+// exports.protect = catchAsyncErr(async (req, res, next) => {
+//   // 1) Get token and check if it exist
+//   let token;
+//   if (
+//     req.headers.authorization &&
+//     req.headers.authorization.startsWith("Bearer")
+//   ) {
+//     token = req.headers.authorization.split(" ")[1];
+//   } else {
+//     return next(
+//       new AppError("You are not logged in, please login to get access", 401)
+//     );
+//     console.log(token);
+//     //2) Verification token
+
+//     const decoded= jwt.verify =>{
+//       token,
+//         process.env.JWT_PRIVATE_KEY
+//       }
+//   }
+// });
