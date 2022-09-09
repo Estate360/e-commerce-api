@@ -38,8 +38,14 @@ exports.register = catchAsyncErr(async (req, res, next) => {
 exports.login = catchAsyncErr(async (req, res, next) => {
   const { email, password } = req.body;
   //Check if email and password is inputed
-  if (!email || !password) {
-    return next(new AppError("Please provide your email and password", 400));
+  // if (!email || !password) {
+  //   return next(new AppError("Please provide your email and password", 400));
+  // }
+  if (!email) {
+    next(new AppError("Please provide your email ", 400));
+  }
+  if (!password) {
+    return next(new AppError("Please provide your  password", 400));
   }
   //Check if user exist and password is correct
 
