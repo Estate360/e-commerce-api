@@ -37,7 +37,7 @@ exports.register = catchAsyncErr(async (req, res, next) => {
 
 exports.login = catchAsyncErr(async (req, res, next) => {
   const { email, password } = req.body;
-  //Check if email and password exist
+  //Check if email and password is inputed
   if (!email || !password) {
     return next(new AppError("Please provide your email and password", 400));
   }
@@ -45,12 +45,13 @@ exports.login = catchAsyncErr(async (req, res, next) => {
 
   //INSTANCE METHOD APPLIED (find this in the userModel).
   const user = await User.findOne({ email }).select("+password");
+
   if (!user || !(await user.checkCorrectPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
   }
 
   //If all is correct, then send token
-  sendJWTrespons(User, 200, res);
+  sendJWTrespons(user, 200, res);
 });
 
 // exports.protect = catchAsyncErr(async (req, res, next) => {
