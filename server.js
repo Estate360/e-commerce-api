@@ -10,6 +10,8 @@ process.on("uncaughtException", (err) => {
 dotEnv.config();
 const app = require("./app");
 
+// console.log(process.env);
+
 const DB = process.env.DATABASE;
 
 mongoose

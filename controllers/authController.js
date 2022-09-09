@@ -1,8 +1,8 @@
+const jwt = require("jsonwebtoken");
+// const { promisify } = require("util");
 const User = require("../models/userModel");
 const catchAsyncErr = require("../utilities/catchAsyncErr");
-const jwt = require("jsonwebtoken");
 const AppError = require("../utilities/AppError");
-const { promisify } = require("util");
 
 const signToken = function (id) {
   return jwt.sign({ id }, process.env.JWT_PRIVATE_KEY, {
@@ -24,14 +24,13 @@ const sendJWTrespons = (user, statusCode, res, err) => {
 };
 
 exports.register = catchAsyncErr(async (req, res, next) => {
-  const newUser = User.create({
-    name: req.body.name,
+  const newUser = await User.create({
+    username: req.body.username,
     email: req.body.email,
     password: req.body.password,
     passwordComfirm: req.body.passwordComfirm,
-    passwordReset: req.body.passwordReset,
-    role: req.body.role,
   });
+
   //Send token if all properties are credible
   sendJWTrespons(newUser, 201, res);
 });
