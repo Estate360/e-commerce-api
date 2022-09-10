@@ -1,8 +1,8 @@
-// const Review = require("../models/reviewsModel");
-// const factoryControl = require("../controllers/generalFactoryController");
+const Product = require("../models/productModel");
+const factoryControl = require("./generalFactoryController");
 
-// exports.createReview = factoryControl.createAction(Review);
-// exports.getAllReview = factoryControl.getAllAction(Review);
-// exports.getParticularReview = factoryControl.getOneAction(Review);
-// exports.updateReview = factoryControl.updateAction(Review);
-// exports.deleteReview = factoryControl.deleteAction(Review);
+exports.createProduct = factoryControl.createAction(Product);
+exports.getAllProducts = factoryControl.getAllAction(Product);
+exports.getParticularProduct = factoryControl.getOneAction(Product);
+exports.updateProduct = factoryControl.updateAction(Product);
+exports.deleteProduct = factoryControl.deleteAction(Product);

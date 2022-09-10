@@ -68,7 +68,10 @@ exports.getOneAction = (Model) =>
 
 exports.getAllAction = (Model) =>
   catchAsyncErr(async (req, res, next) => {
-    const doc = await Model.find();
+    const query = req.query.new;
+    const doc = query
+      ? await Model.find().sort({ _id: -1 }).limit(3)
+      : await Model.find();
 
     //SEND RESPONDS
     res.status(200).json({

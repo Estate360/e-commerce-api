@@ -10,6 +10,7 @@ router.post("/login", authController.login);
 // router.patch("/resetPassword/:token", authController.resetPassword);
 
 // router.use(authController.protect);
+// router.use(authController.restrictTo("admin"));
 
 router
   .route("/")

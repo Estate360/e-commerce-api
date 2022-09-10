@@ -13,6 +13,7 @@ const signToken = function (id) {
 const sendJWTrespons = (user, statusCode, res, err) => {
   const token = signToken(user._id);
   user.password = undefined;
+  // user.passwordComfirm = undefined;
   // console.log(token);
   res.status(statusCode).json({
     status: "successfully",
@@ -38,19 +39,14 @@ exports.register = catchAsyncErr(async (req, res, next) => {
 exports.login = catchAsyncErr(async (req, res, next) => {
   const { email, password } = req.body;
   //Check if email and password is inputed
-  // if (!email || !password) {
-  //   return next(new AppError("Please provide your email and password", 400));
-  // }
-  if (!email) {
-    next(new AppError("Please provide your email ", 400));
+  if (!email || !password) {
+    return next(new AppError("Please provide your email and password!", 400));
   }
-  if (!password) {
-    return next(new AppError("Please provide your  password", 400));
-  }
-  //Check if user exist and password is correct
 
+  //Check if user exist and password is correct
   //INSTANCE METHOD APPLIED (find this in the userModel).
   const user = await User.findOne({ email }).select("+password");
+  console.log(user);
 
   if (!user || !(await user.checkCorrectPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
@@ -75,9 +71,20 @@ exports.login = catchAsyncErr(async (req, res, next) => {
 //     console.log(token);
 //     //2) Verification token
 
-//     const decoded= jwt.verify =>{
+//     const decoded= promisify(jwt.verify)
 //       token,
-//         process.env.JWT_PRIVATE_KEY
-//       }
+
 //   }
 // });
+
+exports.restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    //roles["admin", "lead-guide"]. role="user"
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError("You do not have permission to perform this action", 403)
+      );
+    }
+    next();
+  };

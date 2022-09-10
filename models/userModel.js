@@ -29,17 +29,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please comfirm your password"],
       validate: {
+        //This will only work on CREATE & SAVE!!!
         validator: function (value) {
           return value === this.password;
         },
-        message: "Passwords are not the same",
+        message: "Passwords are not the same, Please input the same password",
       },
     },
     passwordResetAt: Date,
     photo: String,
     role: {
       type: String,
-      enum: [],
+      enum: ["user", "admin"],
       default: "user",
     },
   },
@@ -49,6 +50,18 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+//DOCUMENT/PRE-SAVE MIDDLEWARE
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  //pasword hashed with cost 12
+  this.password = await bcrypt.hash(this.password, 12);
+
+  this.passwordComfirm = undefined;
+  next();
+});
 
 //INSTANCE METHOD DEFINATION;
 userSchema.methods.checkCorrectPassword = async function (
